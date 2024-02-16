@@ -1,0 +1,209 @@
+body {
+  margin: 0;
+  
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+}
+ 
+
+ 
+* {
+    background-repeat: no-repeat;
+    padding: 0;
+    margin: 0;
+    
+    
+}
+ 
+ 
+.disable {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.allhistory{
+  text-align: center;
+  cursor: pointer;
+  /* height: 50px; */
+  align-items: center;
+  --bs-bg-opacity: 1;
+  background: #0d6efd;
+  
+}
+ 
+.allhistory p{
+ /* width: 100%; */
+  padding: 0.60rem;
+  color: #fff;
+  margin-bottom: 0rem;
+}
+
+.allhistory .active{
+  background-color:rgb(100, 149, 237);
+}
+
+
+.yourSelectt{
+  margin-top: .40rem !important;
+  height: .80rem;
+  width: .80rem;
+  /* margin: auto; */
+  border-radius: 50%;
+  background: #008000;
+ 
+}
+
+.yourSelecta{
+  margin-top: .40rem !important;
+  height: .80rem;
+  width: .80rem;
+  /* margin: auto; */
+  border-radius: 50%;
+  background: #0000ff;
+}
+
+
+
+.anderBc{
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  text-align: center;
+  padding: 0.12rem;
+  color: #ffffff;
+  background: #275ac2;
+}
+.baharBc{
+   border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  text-align: center;
+  padding: 0.12rem;
+  color: #ffffff;
+  background: #bc2d35;
+}
+.tiaBc{
+   border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  text-align: center;
+  padding: 0.12rem;
+  color: #ffffff;
+  background: #079254
+}
+
+
+
+
+
+
+.yourSelectB{
+  margin-top: 0.40rem !important;
+  height: 0.80rem;
+  width: 0.80rem;
+  /* margin: auto; */
+  border-radius: 50%;
+  background: #ff0000;
+}
+
+.preWin{
+  /* background: #008000 !important; */
+  color: #008000 !important;
+}
+.preloss{
+  /* background: #ff0000 !important; */
+  color: #ff0000 !important;
+}
+.detailsIdClose{
+  display: flex;
+  justify-content: end;
+  padding-right: 3rem;
+}
+.tieCount {
+  display: block;
+  float: right;
+  margin-bottom: 0.20 rem;
+  padding: 1.50rem;
+}
+.baharCount {
+  display: block;
+  float: left;
+  margin-bottom: 0.20rem;
+  padding: 1.50rem;
+}
+
+.tieCount p{
+  color:#ffffff
+}
+.baharCount p{
+  color:#ffffff
+}
+
+.demoNone{
+  display: none;
+}
+
+
+.reportCard {
+  border: 1px solid blue;
+  border-radius: 0.60rem;
+  margin: 0.60rem;
+  padding: 0.60rem;
+  text-align: center;
+}
+
+.desB {
+  margin-left: 3.8rem;
+}
+
+
+.roportsHeader {
+  padding: 1.9rem;
+  text-align: center;
+}
+
+
+
+
+
+
+.adminSider ul{
+height: 80vh;
+overflow: auto;
+}
+
+
+/* ===== Scrollbar CSS ===== */
+  /* Firefox */
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: #72188c #ffffff;
+  }
+
+  /* Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: rem;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #72188c;
+    border-radius: 0.25rem;
+    border: 0.10rem solid #ffffff;
+  }
+
+
+  
+  .preSetting{
+    margin-bottom: 3rem;
+  }
+
+  .preSetting h6{
+    display: inline;
+  }
+
+   

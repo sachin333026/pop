@@ -1,0 +1,82 @@
+/* div:focus {
+    background-color:#0D6EFD;
+} */
+ 
+*{
+  
+font-family: Futura;
+
+}
+
+.activeNav {
+    
+    color: rgb(2, 136, 209);
+    
+}
+ p
+ {
+    
+    font-size: 14px;
+ }
+  
+ .material-icons
+ {
+   
+    margin-top: auto;
+    padding-bottom: 0px;
+ }
+
+
+ .dropdown-toggle::after {
+    display:none;
+   
+ 
+}
+.dropdown-toggle {
+   border-color: red;
+   
+ 
+}
+ /* Footer.css */
+
+/* The styles for the header part */
+.header-container {
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    font-weight: 500;
+    color: white;
+    background-color: #0288d1;
+    height: 62px;
+    padding-top: 14px;
+    padding-left: 20px;
+}
+
+/* The styles for the user details container */
+.user-details-container {
+    background-color: rgb(250, 250, 250);
+    padding: 1rem;
+}
+
+/* Common styles for user details */
+.user-details {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: inherit;
+    text-shadow: 0.20px 0.20px 0.20px rgba(0, 0, 0, 0.54);
+}
+
+/* Individual styles for user details */
+.user-details span {
+    font-size: 15px;
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 768px) {
+    .header-container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .user-details-container {
+        padding: 0.5rem;
+    }
+}
