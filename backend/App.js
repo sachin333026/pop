@@ -32,11 +32,11 @@ const io = new Server(server, {
 });
 
 const db = mysql.createConnection({
-    user: "freedb_userhero",
-    host: "sql.freedb.tech",
-    database: "freedb_game_ab",
+    user: "un8vaxpeifjhmdqq",
+    host: "bsxjprxi5znvqqoenlgu-mysql.services.clever-cloud.com",
+    database: "bsxjprxi5znvqqoenlgu",
     dateStrings: true,
-     password: "y8DWU&7%yvUN!dd",
+     password: "KcH1dxMKCiP9Jv0oaNfJ",
 });
 
 // const db = mysql.createConnection({
