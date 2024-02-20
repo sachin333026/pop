@@ -256,9 +256,9 @@ var wop;
 
 
 var incresePeriod;
-
-
-
+const moment = require('moment-timezone');
+ const currentTime = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+console.log(currentTime);
 function bettingtime()
 {
 
