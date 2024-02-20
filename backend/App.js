@@ -32,11 +32,11 @@ const io = new Server(server, {
 });
 
 const db = mysql.createConnection({
-    user: "zo3hh08q1oe15leu",
-    host: "r4919aobtbi97j46.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-    database: "rz1nfwo3jq0e91jn",
+    user: "game_fiercedoes",
+    host: "avr.h.filess.io",
+    database: "game_fiercedoes",
     dateStrings: true,
-     password: "ubfbnaslwfszkr02",
+     password: "d76e408a5ac174415ade773352b1b4718b324177",
 });
 
 // const db = mysql.createConnection({
