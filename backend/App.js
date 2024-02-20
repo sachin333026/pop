@@ -362,9 +362,7 @@ function getCurrentPeriod() {
     const year = currentDate.format('YYYY');
     const periodString = `${year}${month}${day}${period.toString().padStart(4, '0')}`;
 
-    return {
-        incresePeriod: periodString
-    };
+    return periodString;
 }
 
 function getCurrentIST() {
@@ -472,9 +470,7 @@ function getCurrentPeriod() {
     const year = currentDate.format('YYYY');
     const periodString = `${year}${month}${day}${period.toString().padStart(4, '0')}`;
 
-    return {
-        useincresePeriod: periodString
-    };
+    return periodString;
 }
 
 function getCurrentIST() {
