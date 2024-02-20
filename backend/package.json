@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
     "nodaemon": "^0.0.5",
+      "moment-timezone": "^0.5.45",
     "nodemon": "^2.0.15",
     "pkg.json": "^2.0.1",
     "socket.io": "^4.4.1"
