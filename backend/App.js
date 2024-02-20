@@ -241,51 +241,165 @@ const start = Date.now();
 var wop;
 //const threeM = 1000 * 30;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var incresePeriod;
+
+
+
 function bettingtime()
 {
-   
- //   setInterval(async () => {
-        const nowDate = Date.now();
-        const timePlue = nowDate + 1000 * 20;
-        const e = new Date();
-        const utcTime = e.getTime();
 
-        // Get the UTC offset for Indian Standard Time (IST) in milliseconds
-        // IST is UTC+5:30, so we need to add 5 hours and 30 minutes to UTC
-        const offsetInMilliseconds = 5.5 * 60 * 60 * 1000;
+    const denominations = [10, 100, 500, 1000, 10000];
+
+let totalontie = 0;
+let totalonandar = 0;
+let totalonbahar = 0;
+
+function getRandomDenomination() {
+    const probabilities = [0.15, 0.30, 0.30, 0.15, 0.10]; // Probabilities for denominations
+    const rand = Math.random();
+    let cumulativeProbability = 0;
+    for (let i = 0; i < probabilities.length; i++) {
+        cumulativeProbability += probabilities[i];
+        if (rand < cumulativeProbability) {
+            return denominations[i];
+        }
+    }
+}
+
+function getRandomOutcome() {
+    const outcomes = ['andar', 'bahar', 'tie'];
+    const probabilities = [0.48, 0.48, 0.04]; // Probabilities for outcomes
+    const rand = Math.random();
+    let cumulativeProbability = 0;
+    for (let i = 0; i < probabilities.length; i++) {
+        cumulativeProbability += probabilities[i];
+        if (rand < cumulativeProbability) {
+            return outcomes[i];
+        }
+    }
+}
+
+function sendReceiveLivebet() {
+    const user = 0; // assuming user ID is 0
+    const outcome = getRandomOutcome();
+    let denomination;
+
+    if (outcome === 'tie') {
+        denomination = [10][Math.floor(Math.random() * 1)]; // Select 10 or 100 for tie
+    } else {
+        denomination = getRandomDenomination();
+    }
+
+    // Update totals
+    if (outcome === 'tie') {
+        totalontie += denomination;
+    } else if (outcome === 'andar') {
+        totalonandar += denomination;
+    } else {
+        totalonbahar += denomination;
+    }
+
+    const data = {
+        user: user,
+        card: outcome,
+        denomination: denomination,
+        totalontie: totalontie,
+        totalonandar: totalonandar,
+        totalonbahar: totalonbahar
+    };
+
+    io.emit("receive_livebet", data);
+    //console.log("Sent receive_livebet:", data);
+}
+
+function scheduleRandomLivebet() {
+    const endTime = Date.now() + 19000; // 20 seconds from now
+
+    function emitRandomlyWithin19Seconds() {
+        if (Date.now() < endTime) {
+            sendReceiveLivebet();
+            const delay = Math.floor(Math.random() * 1000); // Change the maximum delay to 1000 milliseconds
+            setTimeout(emitRandomlyWithin19Seconds, delay);
+        }
+    }
+    
+
+    emitRandomlyWithin19Seconds();
+}
+
+scheduleRandomLivebet(); // Start the process
+
+
+//      
+nowDate1 = Date.now();
+timePlue = nowDate1 + 1000 * 20;
+
+//
+function getCurrentPeriod() {
+    const currentDate = new Date();
+    const secondsInDay = 24 * 60 * 60;
+    const secondsInPeriod = 30;
+
+    const totalSeconds = currentDate.getHours() * 3600 +
+        currentDate.getMinutes() * 60 +
+        currentDate.getSeconds();
+
+    const period = Math.floor(totalSeconds / secondsInPeriod);
+    const totalPeriods = Math.floor(secondsInDay / secondsInPeriod);
+    
+    const day = currentDate.getDate().toString().padStart(2, '0');
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = currentDate.getFullYear().toString();
+    const periodString = year + month + day + period.toString().padStart(4, '0');
+    
+    return {
+        incresePeriod: periodString
+    };
+}
+
+function getCurrentIST() {
+    const currentDate = new Date();
+    const ISTOptions = {
+        timeZone: 'Asia/Kolkata',
+        hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+
+    return currentDate.toLocaleString('en-IN', ISTOptions);
+}
+
+const {incresePeriod } = getCurrentPeriod();
+ 
+ 
+ 
+
+//
+ 
+             
         
-        // Add the offset to the UTC time to get the time in IST
-        const d = new Date(utcTime + offsetInMilliseconds);
-
-        const p = d.toISOString().slice(0, 10);
-        var timep = p.replaceAll("-", "");
-        //20 start
-
-        console.log(d);
         db.query(`SELECT * FROM counttime WHERE id='2'`, (err, result) => {
             if (result) {
                 //var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-    
-                var sdsd = new Date();
-                const utcTime = sdsd.getTime();
-
-        // Get the UTC offset for Indian Standard Time (IST) in milliseconds
-        // IST is UTC+5:30, so we need to add 5 hours and 30 minutes to UTC
-        const offsetInMilliseconds = 5.5 * 60 * 60 * 1000;
-        
-        // Add the offset to the UTC time to get the time in IST
-        const midnightDate = new Date(utcTime + offsetInMilliseconds);
-    
-                // midnightDate.setHours(0, 0, 0, 0);
-                midnightDate.setHours(0, 0, 0, 0);
-    
-                const timestamp = Number(new Date());
-    
-                const timestamps = Number(new Date(midnightDate.toString()));
-    
-                const FinalPeriod = (timestamp / 1000 - timestamps / 1000) / 30;
-                const paddedNumber = String(parseInt(FinalPeriod)).padStart(4, '0');
-                const incresePeriod = timep + paddedNumber;
+      
                    
                 console.log("BETTING START FOR PERIOD :"+incresePeriod);
                // const useincresePeriod = incresePeriod - 1;
@@ -335,43 +449,61 @@ function bettingtime()
     
 }
 
-
+var useincresePeriod;
 
 function winnertime()
 {
     
     io.emit("winner_card", "waiting");
 
-    const nowDate = Date.now();
-    const timePlue = nowDate + 1000 * 20;
-    const e = new Date();
-        const utcTime = e.getTime();
+   
+//      
+nowDate1 = Date.now();
+timePlue = nowDate1 + 1000 * 20;
 
-        // Get the UTC offset for Indian Standard Time (IST) in milliseconds
-        // IST is UTC+5:30, so we need to add 5 hours and 30 minutes to UTC
-        const offsetInMilliseconds = 5.5 * 60 * 60 * 1000;
-        
-        // Add the offset to the UTC time to get the time in IST
-        const d = new Date(utcTime + offsetInMilliseconds);
+//
+function getCurrentPeriod() {
+    const currentDate = new Date();
+    const secondsInDay = 24 * 60 * 60;
+    const secondsInPeriod = 30;
 
-    const p = d.toISOString().slice(0, 10);
-    var timep = p.replaceAll("-", "");
+    const totalSeconds = currentDate.getHours() * 3600 +
+        currentDate.getMinutes() * 60 +
+        currentDate.getSeconds();
+
+    const period = Math.floor(totalSeconds / secondsInPeriod);
+    const totalPeriods = Math.floor(secondsInDay / secondsInPeriod);
     
-            var midnightDate = new Date();
+    const day = currentDate.getDate().toString().padStart(2, '0');
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = currentDate.getFullYear().toString();
+    const periodString = year + month + day + period.toString().padStart(4, '0');
+    
+    return {
+        useincresePeriod: periodString
+    };
+}
 
-            // midnightDate.setHours(0, 0, 0, 0);
-            midnightDate.setHours(0, 0, 0, 0);
+function getCurrentIST() {
+    const currentDate = new Date();
+    const ISTOptions = {
+        timeZone: 'Asia/Kolkata',
+        hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
 
-            const timestamp = Number(new Date());
+    return currentDate.toLocaleString('en-IN', ISTOptions);
+}
 
-            const timestamps = Number(new Date(midnightDate.toString()));
-
-            const FinalPeriod = (timestamp / 1000 - timestamps / 1000) / 30;
-            const paddedNumber = String(parseInt(FinalPeriod)).padStart(4, '0');
-            const useincresePeriod = timep + paddedNumber;
-             // console.log(useincresePeriod + ": winner");
-            //const useincresePeriod = incresePeriod - 1;
-            console.log("BETTING STOP FOR PERIOD :"+useincresePeriod);
+const {useincresePeriod } = getCurrentPeriod();
+ 
+ 
+              console.log("BETTING STOP FOR PERIOD :"+useincresePeriod);
 db.query(
     `SELECT * FROM period`,
     (err, result) => {
@@ -449,20 +581,23 @@ db.query(
                         const winnerRendoms = maxAmount == 0 ? justrendom : amountIndex; //if else ternary condition .
 
                         const winner = winnerRendoms == 0 ? "andar" : winnerRendoms == 1 ? "bahar" : "tie";
-                      //  console.log(useincresePeriod+" :"+winner);
+                        
+
+
+
+
                         ///// probability system starts
 
-                    
                         db.query(
-                            `SELECT * FROM updatewinner WHERE id='1'`,
+                            `SELECT * FROM gamesettings WHERE id='1'`,
                             (err, result) => {
                                 if (result) {
                                     var resultArray = Object.values(
                                         JSON.parse(JSON.stringify(result))
                                     );
                                     // console.log(resultArray[0].endid+">="+ rever[1]?.period +"&&"+ resultArray[0].startid+"<="+rever[1]?.period);
-                                    if (
-                                        resultArray[0]?.status == "true" && resultArray[0].endid >= rever[1]?.period && resultArray[0].startid <= rever[1]?.period
+                                    if (resultArray[0]?.type == "1" && resultArray[0].end >= useincresePeriod && resultArray[0].start <= useincresePeriod
+                                        
                                     ) {
 
 
@@ -495,7 +630,9 @@ db.query(
                                             winnerRendom == 1 ?
                                             "bahar" :
                                             "tie";
-                                        db.query(
+
+                                           //console.log(winners); 
+                                                                                  db.query(
                                             `SELECT * FROM winner WHERE period='${useincresePeriod}'`,
                                             (err, result) => {
                                                 if (result) {
@@ -508,8 +645,9 @@ db.query(
                                                                 }
                                                             }
                                                         );
+                                                        
                                                         db.query(
-                                                            `UPDATE  period SET win='${winners}'  WHERE Period = '${useincresePeriod}'`,
+                                                            `UPDATE period SET win='${winners}'  WHERE Period = '${useincresePeriod}'`,
                                                             (err, result) => {
                                                                 if (err) {
                                                                     //    console.log(err);
@@ -966,11 +1104,11 @@ db.query(
 
                         setTimeout(wat, 5000);
                         setTimeout(run, 2000);
-  function wat() {
+                       function wat() {
 
-    io.emit("winner_card", "waiting2");
+                      io.emit("winner_card", "waiting2");
 
-  }
+                          }
                         function run() {
                              
                             db.query(
@@ -1082,7 +1220,7 @@ db.query(
                                                             if (result) {
                                                                 var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
                                                                 wop = resultArray[0].win;
-
+                                                                console.log("gfbfgbgf");
 
                                                            //    console.log(wop);
 
@@ -1327,76 +1465,164 @@ app.post("/totalAmount", (req, res) => {
     });
 });
 
-function shuffle(string) {
-    var parts = string.split('');
-    for (var i = parts.length; i > 0;) {
-        var random = parseInt(Math.random() * i);
-        var temp = parts[--i];
-        parts[i] = parts[random];
-        parts[random] = temp;
-    }
-    return parts.join('');
-}
-app.post("/gamesetting", (req, res) => {
-    const {
-        endid,
-        win,
-        loss,
-        tie
-    } = req.body;
-    var startid = parseInt(req.body.startid);
-
-    const startOriginal = parseInt(req.body.startid);
-    const diff = endid - startid;
-
-    const wincount = Math.ceil(diff * win / 100);
-    const losscount = Math.ceil(diff * loss / 100);
-    const tiecount = diff - wincount - losscount;
-    const wintimes = "W".repeat(wincount);
-    const losstimes = "L".repeat(losscount);
-    const tietimes = "T".repeat(tiecount);
-    const maintimes = wintimes + losstimes + tietimes;
-    const finaltimes = shuffle(maintimes)
-    const nextoutcomes = [];
-    var line = '';
-    for (i = 0; i < finaltimes.length; i++) {
-        var winner = finaltimes[i]
-
-        startid += 1
-
-        nextoutcomes.push({
-            periodId: startid,
-            winner: winner
-        });
-
-    }
 
 
-    var finaloutcome = JSON.stringify(nextoutcomes);
 
 
-    // console.log(nextoutcomes)
 
+app.post("/gamesettingmanual", (req, res) => {
+    const { periods, selectedResult } = req.body;
+
+    // Create a JSON object with periods as the key and selectedResult as the value
+    let jsonObject = { [periods]: selectedResult };
+   
+    // Convert the JSON object to a string
+    let finaloutcome = JSON.stringify(jsonObject);
+
+    console.log(finaloutcome);
+
+    // Update the database with the final outcome
     db.query(
-        `UPDATE  updatewinner SET startid='${startOriginal}',endid='${endid}',win='${win}',loss='${loss}',tie='${tie}',final='${finaloutcome}'   WHERE id  = "1" `,
+        `UPDATE gamesettings SET manual='${finaloutcome}' WHERE id = 1`,
         (err, result) => {
             if (err) {
                 res.status(200).json({
-                    mess: "Failed",
+                    message: "Failed",
                     data: err
                 });
             } else {
                 res.status(200).json({
-                    mess: "Successfully"
+                    message: "Successfully"
                 });
-
-
-
-
             }
         }
     );
 });
+
+
+
+
+app.post("/gamesettingdiff", (req, res) => {
+    const { difference} = req.body;
+
+  
+    // Update the database with the final outcome
+    db.query(
+        `UPDATE gamesettings SET diff='${difference}' WHERE id = 1`,
+        (err, result) => {
+            if (err) {
+                res.status(200).json({
+                    message: "Failed",
+                    data: err
+                });
+            } else {
+                res.status(200).json({
+                    message: "Successfully"
+                });
+            }
+        }
+    );
+});
+
+app.post("/gamesettingtime", (req, res) => {
+    const { startTime, endTime, tiePercentage} = req.body;
+
+// Parse the start time string into a Date object
+const startTimeDate = new Date(startTime);
+const startTimeTimestamp = startTimeDate.getTime();
+
+// Parse the end time string into a Date object
+const endTimeDate = new Date(endTime);
+const endTimeTimestamp = endTimeDate.getTime();
+
+// Calculate the UTC offset for Indian Standard Time (IST) in milliseconds
+const ISTOffsetMilliseconds = 5.5 * 60 * 60 * 1000;
+
+// Add the offset to the UTC start time to get the time in IST
+const startTimeIST = new Date(startTimeTimestamp + ISTOffsetMilliseconds);
+const formattedStartTime = startTimeIST.toISOString().slice(0, 10).replaceAll("-", "");
+
+// Add the offset to the UTC end time to get the time in IST
+const endTimeIST = new Date(endTimeTimestamp + ISTOffsetMilliseconds);
+const formattedEndTime = endTimeIST.toISOString().slice(0, 10).replaceAll("-", "");
+
+// Get the current time and set it to midnight
+const midnightDate = new Date();
+midnightDate.setHours(0, 0, 0, 0);
+
+// Get the current timestamp and timestamp at midnight, both in milliseconds
+const currentTimestamp = Number(new Date());
+const midnightTimestamp = Number(new Date(midnightDate.toString()));
+
+// Calculate the time elapsed since midnight for start time and end time in seconds, divided by 30
+const startTimeElapsedSeconds = (startTimeTimestamp / 1000 - midnightTimestamp / 1000);
+const endTimeElapsedSeconds = (endTimeTimestamp / 1000 - midnightTimestamp / 1000);
+
+// Calculate the period identifier for start time and end time
+const startTimePeriodIdentifier = String(parseInt(startTimeElapsedSeconds / 30)).padStart(4, '0');
+const endTimePeriodIdentifier = String(parseInt(endTimeElapsedSeconds / 30)).padStart(4, '0');
+
+// Combine the date and padded time to create a period identifier for start time and end time
+const startPeriodIdentifier = formattedStartTime + startTimePeriodIdentifier;
+const endPeriodIdentifier = formattedEndTime + endTimePeriodIdentifier;
+
+
+const startPeriodNumber = parseInt(startPeriodIdentifier);
+const endPeriodNumber = parseInt(endPeriodIdentifier);
+
+// Calculate the difference between endPeriodIdentifier and startPeriodIdentifier
+const difference = endPeriodNumber - startPeriodNumber;
+
+// Calculate the total number of periods within the range
+const totalPeriods = difference + 1; // Adding 1 to include the endPeriodIdentifier
+
+// Generate an array containing all possible periods
+const allPeriods = Array.from({ length: totalPeriods }, (_, index) => {
+    const periodNumber = startPeriodNumber + index;
+    return periodNumber.toString(); // Convert the number to string format
+});
+
+// Shuffle the array
+for (let i = allPeriods.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allPeriods[i], allPeriods[j]] = [allPeriods[j], allPeriods[i]];
+}
+
+// Calculate the number of periods to select
+const periodsToSelect = Math.floor((tiePercentage / 100) * totalPeriods);
+
+// Select the first periodsToSelect elements from the shuffled array
+const selectedPeriods = allPeriods.slice(0, periodsToSelect);
+
+// Create a JSON array with the selected periods
+const jsonArray = JSON.stringify(selectedPeriods.map(period => ({ [period]: "T" })));
+ 
+
+    // Update the database with the final outcome
+    db.query(
+        `UPDATE gamesettings SET start='${startPeriodIdentifier}',end='${endPeriodIdentifier}',tiepercentage='${tiePercentage}',tiewinarray='${jsonArray}' WHERE id = 1`,
+        (err, result) => {
+            if (err) {
+                res.status(200).json({
+                    message: "Failed",
+                    data: err
+                });
+            } else {
+                res.status(200).json({
+                    message: "Successfully"
+                });
+            }
+        }
+    );
+
+ 
+
+
+});
+
+
+
+ 
 
 app.post("/gamesettingactive", (req, res) => {
     const {
@@ -1848,7 +2074,7 @@ db.query(
            
             if(result[0].endTime > csd)
             {
-           console.log(result[0].endTime +" _"+ csd);
+           //console.log(result[0].endTime +" _"+ csd);
 
 ///////////  check whether time is in limit or not end
 
@@ -1859,6 +2085,31 @@ db.query(
             if (resultw) {
                 var resultArrays = Object.values(JSON.parse(JSON.stringify(resultw)));
                 const id = parseInt(resultArrays[0].userId);
+
+   // Update total withdrawal
+   db.query('SELECT * FROM users WHERE userId=?', [id], (err, totalplayget) => {
+    if (err) {
+        console.error("Error fetching wallet:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+    else{
+    
+    const totalAmountadd = parseFloat(parseInt(totalplayget[0].totalplay||0)) + parseFloat(amount);
+    db.query(
+        'UPDATE users SET totalplay=? WHERE userId=?',
+        [totalAmountadd, id],
+        (updateErr, result) => {
+            if (updateErr) {
+                console.error("Error updating total recharge:", updateErr);
+                return res.status(500).json({ error: "Internal Server Error" });
+            }
+           }
+    );
+
+   }
+});
+
+
 
                 db.query(`SELECT * FROM wallet WHERE userId='${id}'`, (err, result) => {
                     var resultArrays = Object.values(JSON.parse(JSON.stringify(result)));
@@ -1984,7 +2235,16 @@ app.post("/withdralpaymentchack", (req, res) => {
         channel,
         payableAmount
     } = req.body;
+       if(payableAmount<100)
+       {
+        res.status(400).json({
+            error: "WAL"
+        });
 
+
+       }
+
+       else{
     db.query(
         `SELECT * FROM users WHERE userTokan='${tokens}' AND userPassword='${userPassword}'`,
         (err, result) => {
@@ -1995,16 +2255,16 @@ app.post("/withdralpaymentchack", (req, res) => {
             } else {
                 const userBalance = result[0].userBalance;
                 const id = result[0].userId;
+                const totalwdd = parseInt(result[0].totalwd);
+                const totalplayed = parseInt(result[0].totalplay);
+                const totalrcd = parseInt(result[0].totalrc);
                 db.query(
                     `SELECT * FROM channelwd WHERE id='${channel}'`,
                     (err, resultw) => {
-
                         if (resultw[0].Status === 0) {
-
                             res.status(400).json({
                                 error: "KCAC"
                             });
-
                         } else {
                             var channelname = resultw[0].channelname;
                             if (userBalance < parseFloat(requestPayment)) {
@@ -2015,162 +2275,110 @@ app.post("/withdralpaymentchack", (req, res) => {
                                 res.status(400).json({
                                     error: "SWW"
                                 });
-                            } else
-
-                            {
+                            } else {
                                 db.query(
-                                    `SELECT * FROM bankdetails WHERE userId = ${id} AND id =${BankId} AND userDelete ='1'`,
+                                    `SELECT * FROM bankdetails WHERE userId = ${id} AND id = ${BankId} AND userDelete ='1'`,
                                     (err, result) => {
                                         if (result.length === 0) {
-
                                             res.status(400).json({
                                                 error: "BDI"
                                             });
-
                                         } else {
                                             var accountNumber = result[0].accountNumber;
                                             var ifseCode = result[0].ifseCode;
                                             var upiAccount = result[0].upiAccount;
 
-                                            ///
-                                            db.query(`SELECT * FROM orders WHERE UserId='${id}'`, (err, result) => {
-                                                if (err) {
-                                                    res.status(400).json(err);
-                                                } else {
-                                                    var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-                                                    const rever = resultArray.reverse();
+                                                    
+                                                    if (totalplayed < totalwdd) {
+                                                        
+                                                        res.status(400).json({
+                                                            error: "PMTW"
+                                                        });
+                                                    } else {
+                                                          const lpa=totalplayed - totalwdd;
+                                                     if (requestPayment>totalplayed - totalwdd) {
+                                                        const lpa=totalplayed - totalwdd;
+                                                        res.status(400).json({
+                                                            cv: "Please Withdraw less Amount than "+lpa+" Rs."
+                                                        });
+                                                    } 
 
-                                                    var TotalGameAmount = 0;
-                                                    for (let index = 0; index < rever.length; index++) {
-                                                        const element = rever[index]?.amount;
-                                                        TotalGameAmount += parseInt(element);
-                                                    }
-
-
-                                                    //
-                                                    db.query(`SELECT * FROM bonuswallet WHERE UserId='${id}'`, (err, result) => {
-                                                        if (err) {
-                                                            res.status(400).json(err);
-                                                        } else {
-                                                            var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-                                                            const rever = resultArray.reverse();
-
-                                                            var TotalBonusAmount = (parseFloat(rever[0]?.appliedamount)).toFixed(2);
-
-                                                            db.query(`SELECT amount FROM deposit WHERE UserId='${id}' AND status='1'`, (err, result) => {
+                                                    else {
+                                                        const remainingAmount = userBalance - (parseFloat(requestPayment)).toFixed(2);
+                                                        db.query(
+                                                            `UPDATE  wallet SET startBal='${userBalance}', closeBal='${remainingAmount.toFixed(2)}'   WHERE userId=${id}`,
+                                                            (err, result) => {
+                                                                if (err) {
+                                                                    // Handle error
+                                                                } else {
+                                                                    // Handle success
+                                                                }
+                                                            }
+                                                        );
+                                                        db.query(
+                                                            `UPDATE  users SET userBalance='${remainingAmount.toFixed(2)}'   WHERE userId=${id}`,
+                                                            (err, result) => {
+                                                                if (err) {
+                                                                    // Handle error
+                                                                } else {
+                                                                    // Handle success
+                                                                }
+                                                            }
+                                                        );
+                                                        db.query(
+                                                            `INSERT INTO withdrawal (userId, wdchannel, Account ,ifsc,upiid,requestPayment,  current_balance,fee,payableAmount, status) VALUES (?,?,?,?,?,?,?,?,?,?)`,
+                                                            [
+                                                                id,
+                                                                channelname,
+                                                                accountNumber,
+                                                                ifseCode,
+                                                                upiAccount,
+                                                                requestPayment,
+                                                                userBalance,
+                                                                fee,
+                                                                payableAmount,
+                                                                0
+                                                            ],
+                                                            (err, result) => {
                                                                 if (err) {
                                                                     res.status(400).json(err);
                                                                 } else {
-                                                                    var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-                                                                    const rever = resultArray.reverse();
-                                                                    var TotalDepositAmount = 0;
-                                                                    for (let index = 0; index < rever.length; index++) {
-                                                                        const element = rever[index]?.amount;
-                                                                        TotalDepositAmount += parseFloat(element);
-                                                                    }
-
-
-                                                                    const TotalRechargeAmount = (parseFloat(TotalDepositAmount) + parseFloat(TotalBonusAmount)).toFixed(2);
-                                                                    if (TotalRechargeAmount > TotalGameAmount) {
-                                                                        res.status(400).json({
-                                                                            error: "GPE"
-                                                                        });
-                                                                    } else {
-
-                                                                        //
-                                                                        const remainingAmount = userBalance - (parseFloat(requestPayment)).toFixed(2);
-                                                                        db.query(
-                                                                            `UPDATE  wallet SET startBal='${userBalance}', closeBal='${remainingAmount.toFixed(
-        2
-    )}'   WHERE userId=${id}`,
-                                                                            (err, result) => {
-                                                                                if (err) {} else {}
+                                                                    const totalAmountadd = parseFloat(parseInt(totalwdd || 0)) + parseFloat(requestPayment);
+                                                                    db.query(
+                                                                        'UPDATE users SET totalwd=? WHERE userId=?',
+                                                                        [totalAmountadd, id],
+                                                                        (updateErr, result) => {
+                                                                            if (updateErr) {
+                                                                                console.error("Error updating total recharge:", updateErr);
+                                                                                return res.status(500).json({ error: "Internal Server Error" });
+                                                                            } else {
+                                                                                res.status(200).json({
+                                                                                    mess: "Success"
+                                                                                });
                                                                             }
-                                                                        );
-
-                                                                        db.query(
-                                                                            `UPDATE  users SET userBalance='${remainingAmount.toFixed(
-        2
-    )}'   WHERE userId=${id}`,
-                                                                            (err, result) => {
-                                                                                if (err) {} else {
-                                                                                    // console.log(result);
-                                                                                }
-                                                                            }
-                                                                        );
-
-                                                                        db.query(
-                                                                            `INSERT INTO withdrawal (userId, wdchannel, Account ,ifsc,upiid,requestPayment,  current_balance,fee,payableAmount, status) VALUES (?,?,?,?,?,?,?,?,?,?)`,
-                                                                            [
-                                                                                id,
-                                                                                channelname,
-                                                                                accountNumber,
-                                                                                ifseCode,
-                                                                                upiAccount,
-                                                                                requestPayment,
-                                                                                userBalance,
-                                                                                fee,
-                                                                                payableAmount,
-                                                                                0
-
-                                                                            ],
-                                                                            (err, result) => {
-                                                                                if (err) {
-                                                                                    res.status(400).json(err);
-                                                                                } else {
-                                                                                    // console.log(result);
-                                                                                    res.status(200).json({
-                                                                                        mess: "Success"
-                                                                                    });
-                                                                                }
-                                                                            }
-                                                                        );
-                                                                        //
-
-                                                                    }
-
-
-
-
+                                                                        }
+                                                                    );
                                                                 }
-                                                            });
-
-
-                                                        }
-                                                    });
-                                                    //
-
-
-
-
-                                                }
-                                            });
-
-
-
-                                            ///
-
+                                                            }
+                                                        );
+                                                    }
+                                                    }
+                                              
                                         }
                                     }
                                 );
-
-
-
-
                             }
-
-
-
-
                         }
                     }
                 );
-
-
-
             }
         });
+
+    }
 });
+
+
+
 app.post("/userExist", (req, res) => {
     const {
         userMobile
@@ -2337,6 +2545,23 @@ app.post("/show/admin/BandhanPayment", (req, res) => {
     });
 });
 
+
+
+
+ 
+
+app.post("/admin/periodget", (req, res) => {
+    db.query(`SELECT period  FROM period ORDER BY Id DESC LIMIT 1`, (err, result) => {
+        
+        res.status(200).json(result);
+    });
+});
+
+
+ 
+
+
+
 app.post("/alltransaction", (req, res) => {
     db.query(`SELECT * FROM transaction`, (err, result) => {
         var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
@@ -2348,6 +2573,126 @@ app.post("/alltransaction", (req, res) => {
         });
     });
 });
+ 
+
+
+
+app.post("/gettr", (req, res) => {
+    const tokens = req.headers.authorization.split(" ")[1];
+    const {
+        pid
+    } = req.body;
+    db.query(
+        `SELECT * FROM users WHERE userTokan='${tokens}'`,
+        (err, resultw) => {
+            if (resultw) {
+                var resultArrays = Object.values(JSON.parse(JSON.stringify(resultw)));
+                const id = parseInt(resultArrays[0].userId);
+                db.query(
+                    `SELECT * FROM orders WHERE UserId='${id}' AND Period = '${pid}'`,
+                    (err, result) => {
+                        if (result.length === 0) {
+                            res.json("");
+                        } else if (result.length >= 0) {
+
+
+                            const tie =
+                            result &&
+                            result?.filter((data) => {
+                                return data?.cardtype == "tie";
+                            });
+                        const andar =
+                        result &&
+                        result?.filter((data) => {
+                                return data?.cardtype == "andar";
+                            });
+                        const bahar =
+                        result &&
+                        result?.filter((data) => {
+                                return data?.cardtype == "bahar";
+                            });
+
+                        
+                        var tta = 0;
+                        for (let index = 0; index < tie.length; index++) {
+                            const element = tie[index]?.amount;
+                            tta += parseInt(element);
+                           
+                        }
+                         
+                        var ata = 0;
+                        for (let index = 0; index < andar.length; index++) {
+                            const element = andar[index]?.amount;
+                            ata += parseInt(element);
+                             
+                        }
+                        var bta = 0;
+                       
+                        for (let index = 0; index < bahar.length; index++) {
+                            const element = bahar[index]?.amount;
+                            bta += parseInt(element);
+                             
+                        }
+                        const amountArray = [
+                            ata,
+                            bta,
+                            tta,
+                        ];
+                       
+                        // Define a function to create the desired JSON object
+                        function createDataArray() {
+                            const data = {};
+                            data["Period"] = pid;
+                            if (amountArray[0] !== 0) {
+                                data["andar"] = amountArray[0];
+                            }
+                            if (amountArray[1] !== 0) {
+                                data["bahar"] = amountArray[1];
+                            }
+                            if (amountArray[2] !== 0) {
+                                data["tie"] = amountArray[2];
+                            }
+                            return [data]; // Wrap the data object in an array
+                        }
+                        
+                        // Create the data array
+                        const newDataArray = createDataArray();
+                        
+                        // Convert the array to a JSON string
+                        const newDataJSONString = JSON.stringify(newDataArray);
+                        
+                        // Print or use newDataJSONString as needed
+                        console.log(newDataJSONString);
+                        
+                        
+
+
+                            res.status(200).json(newDataJSONString);
+                        } else {
+                            res.status(400).json({
+                                err: err,
+                            });
+                        }
+                    }
+                );
+            } else {}
+        }
+    );
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.post("/signUp", (req, res) => {
     const {
@@ -2652,7 +2997,7 @@ app.post("/submitrecharge", (req, res) => {
         utr,
         transactionId
     } = req.body;
-
+ 
     if (utr.length > 22 || utr.length < 10) {
         res.status(400).json({
             error: "INVALID"
@@ -3459,8 +3804,7 @@ app.get("/show/wdoption", (req, res) => {
 app.post("/show/rcoptionupi", (req, res) => {
 
     const tokens = req.headers.authorization.split(" ")[1];
-
-
+ 
     const {
         id,
         amount
@@ -3501,7 +3845,7 @@ app.post("/show/rcoptionupi", (req, res) => {
                             [
                                 idreal,
                                 transactionId,
-                                amount, 1, resulto[0].upi
+                                amount, 0, resulto[0].upi
                             ],
                             (err, result) => {
                                 res.status(200).json({
@@ -4427,11 +4771,188 @@ app.post("/userblock", (req, res) => {
 app.post("/wdapprove", (req, res) => {
     const {
         a,
-        b
+        b,
+        requestPayment
     } = req.body;
 
     db.query(
         `UPDATE  withdrawal SET status='1' WHERE userId  = '${b}' AND id  = '${a}' `,
+        (err, result) => {
+            if (err) {
+                res.status(400).json({
+                    mess: "fail"
+                });
+            } else {
+
+
+
+   // Update total withdrawal
+   db.query('SELECT * FROM users WHERE userId=?', [b], (err, totalwdResult) => {
+    if (err) {
+        console.error("Error fetching wallet:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+    else{
+    
+    const totalAmountadd = parseFloat(parseInt(totalwdResult[0].totalwd||0)) + parseFloat(requestPayment);
+    db.query(
+        'UPDATE users SET totalwd=? WHERE userId=?',
+        [totalAmountadd, b],
+        (updateErr, result) => {
+            if (updateErr) {
+                console.error("Error updating total recharge:", updateErr);
+                return res.status(500).json({ error: "Internal Server Error" });
+            }
+           }
+    );
+
+   }
+});
+
+        res.status(200).json({
+                    mess: "success"
+                });
+            }
+        }
+    );
+});
+app.post("/rcapprove", (req, res) => {
+    const { a, b ,payment } = req.body;
+
+    // Update deposit status
+    db.query(
+        `UPDATE deposit SET status='1' WHERE userId=? AND id=?`,
+        [b, a],
+        (err, depositUpdateResult) => {
+            if (err) {
+                console.error("Error updating deposit status:", err);
+                res.status(400).json({ mess: "Failed to update deposit status" });
+            } else {
+                // Proceed with other operations
+                db.query(`SELECT * FROM users WHERE userId=?`, [b], (err, userResult) => {
+                    if (err) {
+                        console.error("Error fetching user:", err);
+                        res.status(500).json({ error: "Internal Server Error" });
+                    } else {
+                        const userData = userResult[0];
+                         
+                        if (!userData) {
+                            res.status(400).json({ mess: "User Not Found" });
+                        } else {
+                            db.query(`SELECT * FROM wallet WHERE userId=?`, [b], (err, walletResult) => {
+                                if (err) {
+                                    console.error("Error fetching wallet:", err);
+                                    res.status(500).json({ error: "Internal Server Error" });
+                                } else {
+                                    const walletData = walletResult[0];
+                                    const totalAmount = parseFloat(walletData.closeBal) + parseFloat(payment);
+                                    const ctsmp = Date.now();
+                                    const transaction_id = b + "_RECHARGE_" + ctsmp;
+                                    // Update user balance
+                                    db.query(
+                                        `UPDATE users SET userBalance=? WHERE userId=?`,
+                                        [totalAmount, b],
+                                        (err, updateUserResult) => {
+                                            if (err) {
+                                                console.error("Error updating user balance:", err);
+                                                res.status(500).json({ error: "Internal Server Error" });
+                                            } else {
+                                                // Insert transaction record
+                                                db.query(
+                                                    `INSERT INTO transaction (to_id, form_id, amount, previous_balance, current_balance, transaction_id, name, type, periodId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                                                    [
+                                                        b,
+                                                        "01",
+                                                        parseFloat(payment),
+                                                        walletData.closeBal,
+                                                        totalAmount,
+                                                        transaction_id,
+                                                        userData.userName,
+                                                        "CR",
+                                                        "recharge",
+                                                    ],
+                                                    (err, insertTransactionResult) => {
+                                                        if (err) {
+                                                            console.error("Error inserting transaction:", err);
+                                                            res.status(500).json({ error: "Internal Server Error" });
+                                                        } else {
+                                                            // Update wallet balance
+                                                            db.query(
+                                                                `UPDATE wallet SET startBal=?, closeBal=? WHERE userId=?`,
+                                                                [walletData.closeBal, totalAmount, b],
+                                                                (err, updateWalletResult) => {
+                                                                    if (err) {
+                                                                        console.error("Error updating wallet balance:", err);
+                                                                        res.status(500).json({ error: "Internal Server Error" });
+                                                                    } else {
+                                                                        // Update total recharge
+                                                                        db.query('SELECT * FROM users WHERE userId=?', [b], (err, totalrcResult) => {
+                                                                            if (err) {
+                                                                                console.error("Error fetching wallet:", err);
+                                                                                return res.status(500).json({ error: "Internal Server Error" });
+                                                                            }
+
+                                                                            console.log(totalrcResult);
+                                                                            const totalAmountadd = parseFloat(parseInt(totalrcResult[0].totalrc||0)) + parseFloat(payment);
+                                                                            db.query(
+                                                                                'UPDATE users SET totalrc=? WHERE userId=?',
+                                                                                [totalAmountadd, b],
+                                                                                (updateErr, result) => {
+                                                                                    if (updateErr) {
+                                                                                        console.error("Error updating total recharge:", updateErr);
+                                                                                        return res.status(500).json({ error: "Internal Server Error" });
+                                                                                    }
+                                                                                    // Handle successful update if needed
+                                                                                    res.status(200).json({ mess: "Successfully" });
+                                                                                }
+                                                                            );
+                                                                        });
+                                                                    }
+                                                                }
+                                                            );
+                                                        }
+                                                    }
+                                                );
+                                            }
+                                        }
+                                    );
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    );
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+
+
+
+
+
+app.post("/rcreject", (req, res) => {
+    const {
+        a,
+        b
+    } = req.body;
+
+    db.query(
+        `UPDATE  deposit SET status='2' WHERE userId  = '${b}' AND Id  = '${a}' `,
         (err, result) => {
             if (err) {
                 res.status(400).json({
@@ -4448,15 +4969,27 @@ app.post("/wdapprove", (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post("/wdreject", (req, res) => {
     const {
         a,
         b,
         c
     } = req.body;
-
-
-
+    
     db.query(`SELECT * FROM wallet WHERE userId='${b}'`,
         (err, result) => {
             if (result) {
@@ -4476,9 +5009,10 @@ app.post("/wdreject", (req, res) => {
                 db.query(
                     `UPDATE  users SET userBalance='${remainingAmount}'   WHERE userId=${b}`,
                     (err, result) => {
-                        if (err) {} else {}
-                    }
-                );
+                        if (err) {} else {
+
+                           
+                         
                 db.query(
                     `UPDATE  withdrawal SET status='2' WHERE userId  = '${b}' AND id  = '${a}' `,
                     (err, result) => {
@@ -4487,13 +5021,43 @@ app.post("/wdreject", (req, res) => {
                                 mess: "fail"
                             });
                         } else {
-                            res.status(200).json({
-                                mess: "success"
-                            });
+
+                            db.query('SELECT * FROM users WHERE userId=?', [b], (err, totalwdResult) => {
+                                if (err) {
+                                    console.error("Error fetching wallet:", err);
+                                    return res.status(500).json({ error: "Internal Server Error" });
+                                }
+                                
+                                else{
+                            const totalAmountadd = parseFloat(parseInt(totalwdResult[0].totalwd||0)) - parseFloat(c);
+                            db.query(
+                                'UPDATE users SET totalwd=? WHERE userId=?',
+                                [totalAmountadd, b],
+                                (updateErr, result) => {
+                                    if (updateErr) {
+                                        console.error("Error updating total recharge:", updateErr);
+                                        return res.status(500).json({ error: "Internal Server Error" });
+                                    }
+                                    else{
+                        
+                                          // console.log(result);
+                                          res.status(200).json({
+                                            mess: "success"
+                                        });
+                                    }
+                                   }
+                            );
+                        
+                           
                         }
+                    
                     }
                 );
 
+                        }})
+            }
+        }
+    );
 
 
             } else {
