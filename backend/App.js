@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 const e = require("express");
-
+const moment = require('moment-timezone');
 const server = http.createServer(app);
 
 // live
@@ -256,7 +256,7 @@ var wop;
 
 
 var incresePeriod;
-const moment = require('moment-timezone');
+
  const currentTime = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
 console.log(currentTime);
 function bettingtime()
