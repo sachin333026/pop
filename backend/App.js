@@ -257,7 +257,7 @@ var wop;
 
 var incresePeriod;
 
- const currentTime = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+
 console.log(currentTime);
 function bettingtime()
 {
@@ -350,7 +350,9 @@ timePlue = nowDate1 + 1000 * 20;
 
 //
 function getCurrentPeriod() {
-    const currentDate = new Date();
+ 
+
+     const currentDate = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
     const secondsInDay = 24 * 60 * 60;
     const secondsInPeriod = 30;
 
