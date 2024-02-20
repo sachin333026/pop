@@ -357,10 +357,10 @@ function getCurrentPeriod() {
         currentDate.seconds();
 
     const period = Math.floor(totalSeconds / secondsInPeriod);
-    const day = currentDate.format('DD');
-    const month = currentDate.format('MM');
-    const year = currentDate.format('YYYY');
-    const periodString = `${year}${month}${day}${period.toString().padStart(4, '0')}`;
+    const day = parseInt(currentDate.format('DD'));
+    const month = parseInt(currentDate.format('MM'));
+    const year = parseInt(currentDate.format('YYYY'));
+    const periodString = parseInt(`${year}${month}${day}${period.toString().padStart(4, '0')}`);
 
     return periodString;
 }
@@ -468,7 +468,7 @@ function getCurrentPeriod() {
     const day = currentDate.format('DD');
     const month = currentDate.format('MM');
     const year = currentDate.format('YYYY');
-    const periodString = `${year}${month}${day}${period.toString().padStart(4, '0')}`;
+    const periodString = parseInt(`${year}${month}${day}${period.toString().padStart(4, '0')}`);
 
     return periodString;
 }
