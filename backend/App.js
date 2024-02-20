@@ -357,9 +357,9 @@ function getCurrentPeriod() {
         currentDate.seconds();
 
     const period = Math.floor(totalSeconds / secondsInPeriod);
-    const day = parseInt(currentDate.format('DD'));
-    const month = parseInt(currentDate.format('MM'));
-    const year = parseInt(currentDate.format('YYYY'));
+    const day = currentDate.format('DD');
+    const month = currentDate.format('MM');
+    const year = currentDate.format('YYYY');
     const periodString = parseInt(`${year}${month}${day}${period.toString().padStart(4, '0')}`);
 
     return periodString;
@@ -381,11 +381,8 @@ function getCurrentIST() {
     return currentDate.toLocaleString('en-IN', ISTOptions);
 }
 
-   incresePeriod  = getCurrentPeriod();
+  incresePeriod  = getCurrentPeriod();
 const ISTTime = getCurrentIST();
-
- 
-
  
              
         
@@ -449,12 +446,7 @@ function winnertime()
     
     io.emit("winner_card", "waiting");
 
-   
-//      
-nowDate1 = Date.now();
-timePlue = nowDate1 + 1000 * 20;
-
-//
+ 
 function getCurrentPeriod() {
     const currentDate = moment().tz('Asia/Kolkata');
     const secondsInDay = 24 * 60 * 60;
