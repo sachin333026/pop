@@ -32,11 +32,11 @@ const io = new Server(server, {
 });
 
 const db = mysql.createConnection({
-    user: "game_fiercedoes",
-    host: "avr.h.filess.io",
-    database: "game_fiercedoes",
+    user: "freedb_userhero",
+    host: "sql.freedb.tech",
+    database: "freedb_game_ab",
     dateStrings: true,
-     password: "d76e408a5ac174415ade773352b1b4718b324177",
+     password: "y8DWU&7%yvUN!dd",
 });
 
 // const db = mysql.createConnection({
