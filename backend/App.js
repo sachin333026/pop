@@ -383,7 +383,7 @@ function getCurrentIST() {
     return currentDate.toLocaleString('en-IN', ISTOptions);
 }
 
-const { incresePeriod } = getCurrentPeriod();
+   incresePeriod  = getCurrentPeriod();
 const ISTTime = getCurrentIST();
 
  
@@ -493,7 +493,7 @@ function getCurrentIST() {
     return currentDate.toLocaleString('en-IN', ISTOptions);
 }
 
-const { useincresePeriod } = getCurrentPeriod();
+  useincresePeriod  = getCurrentPeriod();
 const ISTTime = getCurrentIST();
 
  
