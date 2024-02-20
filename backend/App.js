@@ -257,8 +257,7 @@ var wop;
 
 var incresePeriod;
 
-
-console.log(currentTime);
+ 
 function bettingtime()
 {
 
