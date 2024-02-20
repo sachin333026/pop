@@ -346,9 +346,7 @@ scheduleRandomLivebet(); // Start the process
 //      
 nowDate1 = Date.now();
 timePlue = nowDate1 + 1000 * 20;
-
-//const moment = require('moment-timezone');
-
+ 
 function getCurrentPeriod() {
     const currentDate = moment().tz('Asia/Kolkata');
     const secondsInDay = 24 * 60 * 60;
@@ -388,8 +386,7 @@ function getCurrentIST() {
 const { incresePeriod } = getCurrentPeriod();
 const ISTTime = getCurrentIST();
 
-console.log('Current Period:', incresePeriod);
-console.log('Current IST Time:', ISTTime);
+ 
 
  
              
@@ -461,24 +458,22 @@ timePlue = nowDate1 + 1000 * 20;
 
 //
 function getCurrentPeriod() {
-    const currentDate = new Date();
+    const currentDate = moment().tz('Asia/Kolkata');
     const secondsInDay = 24 * 60 * 60;
     const secondsInPeriod = 30;
 
-    const totalSeconds = currentDate.getHours() * 3600 +
-        currentDate.getMinutes() * 60 +
-        currentDate.getSeconds();
+    const totalSeconds = currentDate.hours() * 3600 +
+        currentDate.minutes() * 60 +
+        currentDate.seconds();
 
     const period = Math.floor(totalSeconds / secondsInPeriod);
-    const totalPeriods = Math.floor(secondsInDay / secondsInPeriod);
-    
-    const day = currentDate.getDate().toString().padStart(2, '0');
-    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-    const year = currentDate.getFullYear().toString();
-    const periodString = year + month + day + period.toString().padStart(4, '0');
-    
+    const day = currentDate.format('DD');
+    const month = currentDate.format('MM');
+    const year = currentDate.format('YYYY');
+    const periodString = `${year}${month}${day}${period.toString().padStart(4, '0')}`;
+
     return {
-        useincresePeriod: periodString
+        incresePeriod: periodString
     };
 }
 
@@ -498,8 +493,9 @@ function getCurrentIST() {
     return currentDate.toLocaleString('en-IN', ISTOptions);
 }
 
-const {useincresePeriod } = getCurrentPeriod();
- 
+const { useincresePeriod } = getCurrentPeriod();
+const ISTTime = getCurrentIST();
+
  
               console.log("BETTING STOP FOR PERIOD :"+useincresePeriod);
 db.query(
