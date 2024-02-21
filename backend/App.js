@@ -1091,181 +1091,251 @@ db.query(
                       io.emit("winner_card", "waiting2");
 
                           }
- 
+                        function run() {
+                             
+                            db.query(
+                                `SELECT * FROM transaction WHERE periodId = '${useincresePeriod}'`,
+                                (err, result) => {
+                                    if (err) {} else {
+                                         
+                                        var resultArray = Object.values(
+                                            JSON.parse(JSON.stringify(result))
+                                        );
+                                        const crs = resultArray?.filter((data) => {
+                                            return data?.type == "CR";
+                                        });
+                                        const drs = resultArray?.filter((data) => {
+                                            return data?.type == "DR";
+                                        });
 
-function run() {
-    db.query(
-        `SELECT * FROM transaction WHERE periodId = '${useincresePeriod}'`,
-        (err, result) => {
-            if (err) {
-                console.error('Error fetching transactions:', err);
-                return;
-            }
+                                        var crsholder = {};
+                                        crs.forEach(function(d) {
+                                            if (crsholder.hasOwnProperty(d.to_id)) {
+                                                crsholder[d.to_id] =
+                                                    crsholder[d.to_id] + parseInt(d.amount);
+                                            } else {
+                                                crsholder[d.to_id] = parseInt(d.amount);
+                                            }
+                                        });
 
-            const resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-            const crs = resultArray.filter(data => data.type === "CR");
-            const drs = resultArray.filter(data => data.type === "DR");
+                                        var drsholder = {};
+                                        drs.forEach(function(d) {
+                                            if (drsholder.hasOwnProperty(d.form_id)) {
+                                                drsholder[d.form_id] =
+                                                    drsholder[d.form_id] + parseInt(d.amount);
+                                            } else {
+                                                drsholder[d.form_id] = parseInt(d.amount);
+                                            }
+                                        });
 
-            const crsholder = calculateTotalAmounts(crs, 'to_id');
-            const drsholder = calculateTotalAmounts(drs, 'form_id');
-
-            const arraycombine = mergeArrays(crsholder, drsholder, 'form_id', 'to_id');
-
-            doWork(0);
-
-            function doWork(index) {
-                if (index === arraycombine.length) {
-                    console.log('All transactions processed.');
-                    return;
-                }
-
-                const idb = arraycombine[index]?.to_id;
-                const idba = arraycombine[index]?.amount1;
-                let change = 0;
-                if (!arraycombine[index]?.amount2) {
-                    change = idba - 2 * idba;
-                } else {
-                    change = arraycombine[index]?.amount2 - idba;
-                }
-
-                db.query(
-                    `SELECT * FROM users WHERE userId='${idb}'`,
-                    (err, userResult) => {
-                        if (err) {
-                            console.error('Error fetching user details:', err);
-                            return;
-                        }
-
-                        const userDetais = Object.values(JSON.parse(JSON.stringify(userResult)));
-                        const fathid = userDetais[0]?.fatherId;
-                        const gfid = userDetais[0]?.gfId;
-                        const bonusfathid = (idba * 0.6) / 100;
-                        const bonusgfid = (idba * 0.4) / 100;
-
-                        db.query(
-                            `SELECT win FROM period WHERE period = '${useincresePeriod}'`,
-                            (err, periodResult) => {
-                                if (err) {
-                                    console.error('Error fetching period details:', err);
-                                    return;
-                                }
-
-                                const wop = Object.values(JSON.parse(JSON.stringify(periodResult)))[0]?.win;
-
-                                db.query(
-                                    `INSERT INTO wintable (userId, changeoverall, periodId, result, tradeamount, fathid, gfid, fathidbonus, gfidbonus) VALUES (?,?,?,?,?,?,?,?,?)`, [
-                                        idb,
-                                        change,
-                                        useincresePeriod,
-                                        wop,
-                                        idba,
-                                        fathid,
-                                        gfid,
-                                        bonusfathid,
-                                        bonusgfid,
-                                    ],
-                                    (err, insertResult) => {
-                                        if (err) {
-                                            console.error('Error inserting into wintable:', err);
-                                            return;
+                                        var obj2drs = [];
+                                        for (var prop in drsholder) {
+                                            obj2drs.push({
+                                                to_id: prop,
+                                                amount1: drsholder[prop],
+                                            });
                                         }
 
-                                        db.query(
-                                            `SELECT userId,amount,level1amount,level2amount FROM bonuswallet WHERE userId in('${fathid}','${gfid}') ORDER BY userId ASC`,
-                                            (err, bonusResult) => {
-                                                if (err) {
-                                                    console.error('Error fetching bonus wallet details:', err);
-                                                    return;
-                                                }
+                                        var obj2crs = [];
+                                        for (var prop in crsholder) {
+                                            obj2crs.push({
+                                                form_id: prop,
+                                                amount2: crsholder[prop],
+                                            });
+                                        }
+                                        const mergeArrays = (arr1 = [], arr2 = []) => {
+                                            let res = [];
+                                            res = arr1.map((obj) => {
+                                                const index = arr2.findIndex(
+                                                    (el) => el["form_id"] == obj["to_id"]
+                                                );
+                                                const {
+                                                    amount2
+                                                } =
+                                                index !== -1 ? arr2[index] : {};
+                                                return {
+                                                    ...obj,
+                                                    amount2,
+                                                };
+                                            });
+                                            return res;
+                                        };
+                                        var arraycombine = mergeArrays(obj2drs, obj2crs);
+                                        // const myTimeout = setTimeout(fun, 1000);
 
-                                                let bonuswalletold = 0;
-                                                let bonuswalletold2 = 0;
-                                                let bonuswalletoldlevel1 = 0;
-                                                let bonuswalletoldlevel2 = 0;
-                                                let bonuswalletoldlevel21 = 0;
-                                                let bonuswalletoldlevel22 = 0;
-                                                const userdetal = Object.values(JSON.parse(JSON.stringify(bonusResult)));
+                                        // function fun() {
 
-                                                if (fathid > gfid) {
-                                                    bonuswalletold = parseFloat(userdetal[1]?.amount) || 0;
-                                                    bonuswalletold2 = parseFloat(userdetal[0]?.amount) || 0;
-                                                    bonuswalletoldlevel1 = parseFloat(userdetal[1]?.level1amount) || 0;
-                                                    bonuswalletoldlevel2 = parseFloat(userdetal[1]?.level2amount) || 0;
-                                                    bonuswalletoldlevel21 = parseFloat(userdetal[0]?.level1amount) || 0;
-                                                    bonuswalletoldlevel22 = parseFloat(userdetal[0]?.level2amount) || 0;
+                                        // for (let index = 0; index < arraycombine.length; index++) {
+                                        doWork(0);
+                                        async function doWork(index) {
+                                            if (index === arraycombine.length) {
+                                                return false;
+                                            } else {
+                                                const idb = arraycombine[index]?.to_id;
+                                                const idba = arraycombine[index]?.amount1;
+                                                let change = 0;
+                                                if (!arraycombine[index]?.amount2) {
+                                                    change =
+                                                        arraycombine[index]?.amount1 -
+                                                        2 * arraycombine[index]?.amount1;
                                                 } else {
-                                                    bonuswalletold2 = parseFloat(userdetal[1]?.amount) || 0;
-                                                    bonuswalletold = parseFloat(userdetal[0]?.amount) || 0;
-                                                    bonuswalletoldlevel1 = parseFloat(userdetal[0]?.level1amount) || 0;
-                                                    bonuswalletoldlevel2 = parseFloat(userdetal[0]?.level2amount) || 0;
-                                                    bonuswalletoldlevel21 = parseFloat(userdetal[1]?.level1amount) || 0;
-                                                    bonuswalletoldlevel22 = parseFloat(userdetal[1]?.level2amount) || 0;
+                                                    change =
+                                                        arraycombine[index]?.amount2 -
+                                                        arraycombine[index]?.amount1;
                                                 }
-
-                                                const bonusw = parseFloat((idba * 0.6) / 100);
-                                                const bonusw2 = parseFloat((idba * 0.4) / 100);
-                                                bonuswalletold += +bonusw.toFixed(2);
-                                                bonuswalletold2 += +bonusw2.toFixed(2);
-                                                bonuswalletoldlevel1 += +bonusw.toFixed(2);
-                                                bonuswalletoldlevel2 += +bonusw2.toFixed(2);
-                                                bonuswalletoldlevel21 += +bonusw.toFixed(2);
-                                                bonuswalletoldlevel22 += +bonusw2.toFixed(2);
-
                                                 db.query(
-                                                    `UPDATE bonuswallet SET amount =CASE WHEN userId = '${fathid}' THEN '${bonuswalletold.toFixed(2)}' WHEN userId = '${gfid}' THEN '${bonuswalletold2.toFixed(2)}' END ,level1amount =CASE WHEN userId = '${fathid}' THEN '${bonuswalletoldlevel1.toFixed(2)}' ELSE level1amount END,level2amount =CASE WHEN userId = '${gfid}' THEN '${bonuswalletoldlevel22.toFixed(2)}' ELSE level2amount END WHERE userId in('${fathid}','${gfid}')`,
-                                                    async (err, updateResult) => {
-                                                        if (err) {
-                                                            console.error('Error updating bonus wallet:', err);
-                                                            return;
-                                                        }
+                                                    `SELECT * FROM users WHERE userId='${idb}'`,
+                                                    (err, result) => {
+                                                        const userDetais = Object.values(
+                                                            JSON.parse(JSON.stringify(result))
+                                                        );
+                                                        const fathid = userDetais[0]?.fatherId;
+                                                        const gfid = userDetais[0]?.gfId;
+                                                        const bonusfathid =
+                                                            (arraycombine[index]?.amount1 * 0.6) / 100;
+                                                        const bonusgfid =
+                                                            (arraycombine[index]?.amount1 * 0.4) / 100;
 
-                                                        index++;
-                                                        doWork(index);
+
+
+                                                        db.query(`SELECT win FROM period WHERE period = '${useincresePeriod}'`, (err, result) => {
+                                                            if (result) {
+                                                                var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
+                                                                wop = resultArray[0].win;
+                                                                console.log("gfbfgbgf");
+
+                                                           //    console.log(wop);
+
+                                                                db.query(
+                                                                    `INSERT INTO wintable (userId,changeoverall,periodId,result,tradeamount,fathid,gfid,fathidbonus,gfidbonus) VALUES (?,?,?,?,?,?,?,?,?)`,
+                                                                    [
+                                                                        arraycombine[index]?.to_id,
+                                                                        change,
+                                                                        useincresePeriod,
+                                                                        wop,
+                                                                        arraycombine[index]?.amount1,
+                                                                        fathid,
+                                                                        gfid,
+                                                                        bonusfathid,
+                                                                        bonusgfid,
+                                                                    ],
+                                                                    (err, result) => {
+                                                                        db.query(
+                                                                            `SELECT userId,amount,level1amount,level2amount FROM bonuswallet WHERE userId in('${fathid}','${gfid}') ORDER BY userId ASC`,
+                                                                            (err, result) => {
+                                                                                // console.log(result);
+                                                                                let bonuswalletold = 0;
+                                                                                let bonuswalletold2 = 0;
+                                                                                let bonuswalletoldlevel1 = 0;
+                                                                                let bonuswalletoldlevel2 = 0;
+                                                                                let bonuswalletoldlevel21 = 0;
+                                                                                let bonuswalletoldlevel22 = 0;
+                                                                                var userdetal = Object.values(
+                                                                                    JSON.parse(JSON.stringify(result))
+                                                                                );
+                                                                                if (fathid > gfid) {
+                                                                                    bonuswalletold =
+                                                                                        parseFloat(userdetal[1]?.amount) +
+                                                                                        0;
+                                                                                    bonuswalletold2 =
+                                                                                        parseFloat(userdetal[0]?.amount) +
+                                                                                        0;
+                                                                                    bonuswalletoldlevel1 = parseFloat(
+                                                                                        userdetal[1]?.level1amount
+                                                                                    );
+                                                                                    bonuswalletoldlevel2 = parseFloat(
+                                                                                        userdetal[1]?.level2amount
+                                                                                    );
+                                                                                    bonuswalletoldlevel21 = parseFloat(
+                                                                                        userdetal[0]?.level1amount
+                                                                                    );
+                                                                                    bonuswalletoldlevel22 = parseFloat(
+                                                                                        userdetal[0]?.level2amount
+                                                                                    );
+                                                                                } else {
+                                                                                    bonuswalletold2 = parseFloat(
+                                                                                        userdetal[1]?.amount
+                                                                                    );
+                                                                                    bonuswalletold = parseFloat(
+                                                                                        userdetal[0]?.amount
+                                                                                    );
+                                                                                    bonuswalletoldlevel1 = parseFloat(
+                                                                                        userdetal[0]?.level1amount
+                                                                                    );
+                                                                                    bonuswalletoldlevel2 = parseFloat(
+                                                                                        userdetal[0]?.level2amount
+                                                                                    );
+                                                                                    bonuswalletoldlevel21 = parseFloat(
+                                                                                        userdetal[1]?.level1amount
+                                                                                    );
+                                                                                    bonuswalletoldlevel22 = parseFloat(
+                                                                                        userdetal[1]?.level2amount
+                                                                                    );
+                                                                                }
+                                                                                // console.log("UserId :"+idb+" | FatherId :"+fathid+" | GrandFathId :"+gfid+" | Tradeamount :"+arraycombine[index]?.amount1+" | FATHoldBonus :"+bonuswalletold+" | GfoldBonus :"+bonuswalletold2);
+                                                                                const bonusw = parseFloat(
+                                                                                    (arraycombine[index]?.amount1 *
+                                                                                        0.6) /
+                                                                                    100
+                                                                                );
+                                                                                const bonusw2 = parseFloat(
+                                                                                    (arraycombine[index]?.amount1 *
+                                                                                        0.4) /
+                                                                                    100
+                                                                                );
+                                                                                bonuswalletold += +bonusw.toFixed(2);
+                                                                                bonuswalletold2 +=
+                                                                                    +bonusw2.toFixed(2);
+                                                                                // console.log("FL1 :"+bonuswalletoldlevel1+" | FL2"+bonuswalletoldlevel2+" | GL1"+bonuswalletoldlevel21+" | GL2"+bonuswalletoldlevel22);
+                                                                                bonuswalletoldlevel1 +=
+                                                                                    +bonusw.toFixed(2);
+                                                                                bonuswalletoldlevel2 +=
+                                                                                    +bonusw2.toFixed(2);
+
+                                                                                bonuswalletoldlevel21 +=
+                                                                                    +bonusw.toFixed(2);
+                                                                                bonuswalletoldlevel22 +=
+                                                                                    +bonusw2.toFixed(2);
+
+                                                                                // console.log("FL1 :"+bonuswalletoldlevel1+" | FL2"+bonuswalletoldlevel2+" | GL1"+bonuswalletoldlevel21+" | GL2"+bonuswalletoldlevel22);
+
+                                                                                db.query(
+                                                                                    `UPDATE bonuswallet SET amount =CASE WHEN userId = '${fathid}' THEN '${bonuswalletold.toFixed(
+                                                                                2
+                                                                            )}' WHEN userId = '${gfid}' THEN '${bonuswalletold2.toFixed(
+                                                                                2
+                                                                            )}' END ,level1amount =CASE WHEN userId = '${fathid}' THEN '${bonuswalletoldlevel1.toFixed(
+                                                                                2
+                                                                            )}' ELSE level1amount END,level2amount =CASE WHEN userId = '${gfid}' THEN '${bonuswalletoldlevel22.toFixed(
+                                                                                2
+                                                                            )}' ELSE level2amount END WHERE userId in('${fathid}','${gfid}')`,
+                                                                                    async (err, result) => {
+                                                                                        // console.log(err);
+                                                                                        // console.log(" |Fath Comm : "+bonusw+" |Gf Comm : "+bonusw2+" |NewFATHBonus :"+bonuswalletold+" | NewGFBonus :"+bonuswalletold2)
+
+                                                                                        index += 1;
+                                                                                        doWork(index);
+
+                                                                                    }
+                                                                                );
+                                                                            }
+                                                                        );
+                                                                        //bonustable update fath id -- bonustable,bonuswallet
+                                                                    }
+                                                                );
+
+
+                                                            } else {}
+                                                        });
                                                     }
                                                 );
                                             }
-                                        );
+                                        }
                                     }
-                                );
-                            }
-                        );
-                    }
-                );
-            }
-        }
-    );
-}
-
-function calculateTotalAmounts(transactions, idKey) {
-    const holder = {};
-    transactions.forEach(transaction => {
-        const id = transaction[idKey];
-        if (holder.hasOwnProperty(id)) {
-            holder[id] += parseInt(transaction.amount);
-        } else {
-            holder[id] = parseInt(transaction.amount);
-        }
-    });
-    const result = [];
-    for (const prop in holder) {
-        result.push({
-            [idKey]: prop,
-            amount1: holder[prop],
-        });
-    }
-    return result;
-}
-
-function mergeArrays(arr1, arr2, key1, key2) {
-    return arr1.map(obj => {
-        const index = arr2.findIndex(el => el[key2] == obj[key1]);
-        const { amount2 } = index !== -1 ? arr2[index] : {};
-        return {
-            ...obj,
-            amount2,
-        };
-    });
-}
+                                    //ya end
+                                }
+                            );
+                        }
 
                         
                         //yha end
@@ -4642,32 +4712,23 @@ app.post("/WithdrawHistory", (req, res) => {
         });
 });
 
+
 app.post("/history", (req, res) => {
-    const { userId } = req.body;
-    db.query('SELECT * FROM users WHERE userTokan=?', [userId], (err, userResult) => {
-        if (err) {
-            console.error("Error retrieving user:", err);
-            return res.status(500).json({ error: "Internal server error" });
+    const {
+        userId
+    } = req.body;
+    db.query(`SELECT * FROM users WHERE userTokan='${userId}'`, (err, result) => {
+        if (result) {
+            var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
+            var id = resultArray[0]?.userId;
+            db.query(`SELECT * FROM wintable WHERE userId = ${id}`, (err, result) => {
+                return res.json(result);
+            });
+        } else {
+            console.log(err);
         }
-
-        if (userResult.length === 0) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        const user = userResult[0];
-        const id = user.userId;
-
-        db.query('SELECT * FROM wintable WHERE userId = ?', [id], (err, historyResult) => {
-            if (err) {
-                console.error("Error retrieving history:", err);
-                return res.status(500).json({ error: "Internal server error" });
-            }
-            
-            res.json(historyResult);
-        });
     });
 });
-
 
 
 
