@@ -12,10 +12,7 @@ app.use(cors());
 const e = require("express");
 const moment = require('moment-timezone');
 const server = http.createServer(app);
-
-app.use(cors({
-  origin: 'https://sachin9572.onrender.com',
-}));
+ 
 
 // const io = new Server(server, {
 //     cors: {
@@ -28,7 +25,7 @@ app.use(cors({
 
 const io = new Server(server, {
     cors: {
-        origin: "https://sachin9572.onrender.com",
+        origin: "*",
         methods: ["GET", "POST"],
     },
 });
