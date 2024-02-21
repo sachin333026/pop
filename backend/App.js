@@ -4712,23 +4712,32 @@ app.post("/WithdrawHistory", (req, res) => {
         });
 });
 
-
 app.post("/history", (req, res) => {
-    const {
-        userId
-    } = req.body;
-    db.query(`SELECT * FROM users WHERE userTokan='${userId}'`, (err, result) => {
-        if (result) {
-            var resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-            var id = resultArray[0]?.userId;
-            db.query(`SELECT * FROM wintable WHERE userId = ${id}`, (err, result) => {
-                return res.json(result);
-            });
-        } else {
-            console.log(err);
+    const { userId } = req.body;
+    db.query('SELECT * FROM users WHERE userTokan=?', [userId], (err, userResult) => {
+        if (err) {
+            console.error("Error retrieving user:", err);
+            return res.status(500).json({ error: "Internal server error" });
         }
+
+        if (userResult.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const user = userResult[0];
+        const id = user.userId;
+
+        db.query('SELECT * FROM wintable WHERE userId = ?', [id], (err, historyResult) => {
+            if (err) {
+                console.error("Error retrieving history:", err);
+                return res.status(500).json({ error: "Internal server error" });
+            }
+            
+            res.json(historyResult);
+        });
     });
 });
+
 
 
 
