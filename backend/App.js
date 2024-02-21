@@ -12,7 +12,8 @@ app.use(cors());
 const e = require("express");
 const moment = require('moment-timezone');
 const server = http.createServer(app);
- 
+
+// live
 
 // const io = new Server(server, {
 //     cors: {
@@ -25,7 +26,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "https://sachin9572.netlify.app",
         methods: ["GET", "POST"],
     },
 });
@@ -1351,34 +1352,22 @@ db.query(
 }
 
 
-let bettingTimeFlag = false;
-let winnerTimeFlag = false;
-
 function checkSecond() {
     const now = new Date();
     const seconds = now.getSeconds();
 
     if (seconds === 0 || seconds === 30) {
-        if (!bettingTimeFlag) {
-            bettingTimeFlag = true;
-            bettingtime();
-        }
-    } else {
-        bettingTimeFlag = false;
+        bettingtime();
     }
-
     if (seconds === 21 || seconds === 51) {
-        if (!winnerTimeFlag) {
-            winnerTimeFlag = true;
-            winnertime();
-        }
-    } else {
-        winnerTimeFlag = false;
+        winnertime();
     }
 }
 
 // Check every second
 setInterval(checkSecond, 1000);
+
+
  
 
 app.post("/totalAmount", (req, res) => {
