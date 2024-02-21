@@ -2972,85 +2972,78 @@ app.post("/blankDetails", (req, res) => {
 // })
 
 
-
 app.post("/submitrecharge", (req, res) => {
     const tokens = req.headers.authorization.split(" ")[1];
     const {
         utr,
         transactionId
     } = req.body;
- 
+
     if (utr.length > 22 || utr.length < 10) {
-        res.status(400).json({
-            error: "INVALID"
+        return res.status(400).json({
+            error: "INVALID UTR"
         });
-    } else {
+    }
 
-        db.query(
-            `SELECT * FROM users WHERE userTokan='${tokens}'`,
-            (err, resultw) => {
-                if (resultw) {
-                    var resultArrays = Object.values(JSON.parse(JSON.stringify(resultw)));
-                    const id = parseInt(resultArrays[0].userId);
+    // Fetch user information
+    db.query(
+        `SELECT * FROM users WHERE userTokan=?`, [tokens],
+        (err, resultw) => {
+            if (err) {
+                return res.status(500).json({
+                    error: "Database error"
+                });
+            }
+            if (resultw.length === 0) {
+                return res.status(404).json({
+                    error: "User not found"
+                });
+            }
+
+            const user = resultw[0];
+            const userId = user.userId;
+
+            // Check if UTR already exists
+            db.query(
+                `SELECT * FROM deposit WHERE Utr=?`, [utr],
+                (err, result) => {
+                    if (err) {
+                        return res.status(500).json({
+                            error: "Database error"
+                        });
+                    }
+                    if (result.length > 0) {
+                        return res.status(400).json({
+                            error: "UTR already exists"
+                        });
+                    }
+
+                    // Update deposit with UTR
                     db.query(
-                        `SELECT * FROM deposit WHERE Utr='${utr}'`,
+                        `UPDATE deposit SET Utr=? WHERE transaction_id=? AND userId=? AND Utr IS NULL`,
+                        [utr, transactionId, userId],
                         (err, result) => {
-                            if (result.length === 1 || ) {
-                                res.status(400).json({
-                                    error: "ALREADY"
+                            if (err) {
+                                return res.status(500).json({
+                                    error: "Database error"
                                 });
-                            } else {
-
-                                ///
-                                db.query(
-                                    `SELECT Utr FROM deposit WHERE transaction_id='${transactionId}' && userId='${id}'`,
-                                    (err, result) => {
-                                        if (result[0].Utr == 'NULL') {
-
-                                            db.query(
-                                                `UPDATE  deposit SET Utr='${utr}' WHERE transaction_id='${transactionId}' && userId='${id}' `,
-                                                (err, result) => {
-                                                    if (result) {
-                                                        res.status(200).json({
-                                                            mess: "Success"
-                                                        });
-                                                    } else {
-                                                        res.status(400).json(err);
-                                                    }
-                                                }
-                                            );
-
-
-
-
-                                        } else {
-
-                                            res.status(400).json({
-                                                error: "ALREADYFILLED"
-                                            });
-
-
-
-                                        }
-                                    }
-                                );
-
-
-
-
-                                ///
-
-
-
-
                             }
+                            if (result.affectedRows === 0) {
+                                return res.status(400).json({
+                                    error: "Transaction not found or UTR already filled"
+                                });
+                            }
+                            res.status(200).json({
+                                mess: "Success"
+                            });
                         }
                     );
-                } else {}
-            }
-        );
-    }
+                }
+            );
+        }
+    );
 });
+
 
 app.post("/showBankDetails", (req, res) => {
     const tokens = req.headers.authorization.split(" ")[1];
