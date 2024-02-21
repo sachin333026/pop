@@ -1370,22 +1370,34 @@ db.query(
 }
 
 
+let bettingTimeFlag = false;
+let winnerTimeFlag = false;
+
 function checkSecond() {
     const now = new Date();
     const seconds = now.getSeconds();
 
     if (seconds === 0 || seconds === 30) {
-        bettingtime();
+        if (!bettingTimeFlag) {
+            bettingTimeFlag = true;
+            bettingtime();
+        }
+    } else {
+        bettingTimeFlag = false;
     }
+
     if (seconds === 21 || seconds === 51) {
-        winnertime();
+        if (!winnerTimeFlag) {
+            winnerTimeFlag = true;
+            winnertime();
+        }
+    } else {
+        winnerTimeFlag = false;
     }
 }
 
 // Check every second
 setInterval(checkSecond, 1000);
-
-
  
 
 app.post("/totalAmount", (req, res) => {
