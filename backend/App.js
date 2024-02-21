@@ -3821,6 +3821,7 @@ app.post("/show/rcoptionupi", (req, res) => {
                 db.query(`SELECT channelname,upi,Status FROM channelrc WHERE id='${id}'`, (err, resulto) => {
 
 
+                   
                     if (resulto) {
                         db.query(
                             `INSERT INTO deposit (userId, transaction_id, amount, status,Upi ) VALUES (?,?,?,?,?)`,
@@ -3830,11 +3831,21 @@ app.post("/show/rcoptionupi", (req, res) => {
                                 amount, 0, resulto[0].upi
                             ],
                             (err, result) => {
-                                res.status(200).json({
-                                    channelname: resulto[0].channelname,
-                                    upi: resulto[0].upi,
-                                    transactionId: transactionId
-                                });
+
+                                {
+                                    if (result) {
+                                        res.status(200).json({
+                                            channelname: resulto[0].channelname,
+                                            upi: resulto[0].upi,
+                                            transactionId: transactionId
+                                        });
+                                    } else {
+                                        res.status(400).json(err);
+                                    }
+                                }
+
+
+ 
 
                             });
                     } else {
