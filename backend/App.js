@@ -44,7 +44,7 @@ app.use(function (req, res, next) {
 
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "https://sachin9572.onrender.com/",
         methods: ["GET", "POST"],
     },
 });
