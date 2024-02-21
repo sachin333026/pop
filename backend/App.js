@@ -30,7 +30,11 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
     },
 });
+const corsOptions = {
+  origin: 'https://sachin9572.netlify.app' // Replace with your allowed origin
+};
 
+app.use(cors(corsOptions));
 const db = mysql.createConnection({
     user: "un8vaxpeifjhmdqq",
     host: "bsxjprxi5znvqqoenlgu-mysql.services.clever-cloud.com",
