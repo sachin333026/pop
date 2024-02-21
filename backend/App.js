@@ -2995,7 +2995,7 @@ app.post("/submitrecharge", (req, res) => {
                     db.query(
                         `SELECT * FROM deposit WHERE Utr='${utr}'`,
                         (err, result) => {
-                            if (result.length === 1) {
+                            if (result.length === 1 || ) {
                                 res.status(400).json({
                                     error: "ALREADY"
                                 });
@@ -3005,7 +3005,7 @@ app.post("/submitrecharge", (req, res) => {
                                 db.query(
                                     `SELECT Utr FROM deposit WHERE transaction_id='${transactionId}' && userId='${id}'`,
                                     (err, result) => {
-                                        if (result[0].Utr == '') {
+                                        if (result[0].Utr == 'NULL') {
 
                                             db.query(
                                                 `UPDATE  deposit SET Utr='${utr}' WHERE transaction_id='${transactionId}' && userId='${id}' `,
